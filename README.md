@@ -156,8 +156,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/zeba673/TracePoint.git
-cd TracePoint
+git clone https://github.com/zeba673/OSINT-WEB.git
+cd OSINT-WEB
 
 # Create virtual environment
 python3.12 -m venv venv
