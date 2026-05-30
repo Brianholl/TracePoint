@@ -5,7 +5,7 @@
 <div class="page-head">
 <div>
 <h1>{{ t('results_for') }}</h1>
-<p>{{ t('target') }}: <strong style="color:var(--text-bright)">{{ search.query_value[:80] }}</strong>
+<p>{{ t('target') }}: <strong style="color:var(--fg)">{{ search.query_value[:80] }}</strong>
 <span class="badge">{{ search.query_type }}</span>
 <span class="badge" style="font-family:var(--font);font-size:10px;">ID: #{{ search.id }}</span></p>
 </div>
@@ -20,9 +20,9 @@
 <div class="panel">
 <div class="panel-body" style="text-align:center;padding:32px;">
 <div style="font-size:18px;margin-bottom:8px;">&#8635;</div>
-<div style="font-size:12px;font-weight:500;color:var(--text-bright);margin-bottom:6px;">{{ t('in_progress') }}</div>
+<div style="font-size:12px;font-weight:500;color:var(--fg);margin-bottom:6px;">{{ t('in_progress') }}</div>
 <div class="pbar" style="max-width:320px;margin:0 auto 8px;"><div class="fill"></div></div>
-<div style="font-size:10px;color:var(--text-dim);">{{ t('collecting_intel') }}</div>
+<div style="font-size:10px;color:var(--fg-2);">{{ t('collecting_intel') }}</div>
 </div>
 </div>
 {% endif %}
@@ -102,11 +102,11 @@
 </table>
 {% if s.profiles|selectattr("status","in",["not_found","blocked","redirect_login","redirect_away","rate_limited","error","timeout"])|list %}
 <details style="margin-top:8px;">
-<summary style="cursor:pointer;font-size:12px;color:var(--text-dim);">&#9660; Show not found ({{ s.profiles|selectattr("status","in",["not_found","blocked","redirect_login","redirect_away","rate_limited","error","timeout"])|list|length }})</summary>
+<summary style="cursor:pointer;font-size:12px;color:var(--fg-2);">&#9660; Show not found ({{ s.profiles|selectattr("status","in",["not_found","blocked","redirect_login","redirect_away","rate_limited","error","timeout"])|list|length }})</summary>
 <table class="dense">
 <tbody>
 {% for p in s.profiles if p.status in ('not_found','blocked','redirect_login','redirect_away','rate_limited','error','timeout') %}
-<tr><td style="color:var(--text-dim);font-size:11px;">{{ p.platform }}</td><td style="color:var(--text-dim);font-size:11px;">{{ p.url[:45] }}&#8230;</td><td><span class="badge" style="background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border);">{{ p.status }}</span></td></tr>
+<tr><td style="color:var(--fg-2);font-size:11px;">{{ p.platform }}</td><td style="color:var(--fg-2);font-size:11px;">{{ p.url[:45] }}&#8230;</td><td><span class="badge" style="background:var(--bg-primary);color:var(--fg-2);border:1px solid var(--border);">{{ p.status }}</span></td></tr>
 {% endfor %}
 </tbody>
 </table>
@@ -141,7 +141,7 @@
 <div class="stats" style="grid-template-columns:repeat(4,1fr);">
 <div class="stat" style="padding:8px 12px;"><div class="lbl">Followers</div><div class="val" style="font-size:16px;">{{ s.followers_count }}</div></div>
 <div class="stat" style="padding:8px 12px;"><div class="lbl">Following</div><div class="val" style="font-size:16px;">{{ s.following_count }}</div></div>
-<div class="stat" style="padding:8px 12px;"><div class="lbl">Verified</div><div class="val" style="font-size:16px;color:{{ 'var(--blue)' if s.profile.verified else 'var(--text-muted)' }};">{{ t('yes') if s.profile.verified else t('no') }}</div></div>
+<div class="stat" style="padding:8px 12px;"><div class="lbl">Verified</div><div class="val" style="font-size:16px;color:{{ 'var(--accent)' if s.profile.verified else 'var(--fg-dim)' }};">{{ t('yes') if s.profile.verified else t('no') }}</div></div>
 <div class="stat" style="padding:8px 12px;"><div class="lbl">Tweets</div><div class="val" style="font-size:16px;">{{ s.tweets|length }}</div></div>
 </div>
 {% if s.profile.description %}<div class="kv"><span class="k">Bio</span><span class="v">{{ s.profile.description[:300] }}</span></div>{% endif %}
@@ -185,18 +185,18 @@
 <img src="{{ s.gravatar.avatar }}" style="width:40px;height:40px;flex-shrink:0;">
 <div>
 <div style="font-weight:600;font-size:13px;">{{ s.gravatar.display_name or 'N/A' }}</div>
-<div style="font-size:11px;color:var(--text-dim);">@{{ s.gravatar.preferred_username or 'N/A' }}</div>
+<div style="font-size:11px;color:var(--fg-2);">@{{ s.gravatar.preferred_username or 'N/A' }}</div>
 </div>
 </div>
 {% endif %}
 {% if s.hibp and s.hibp.breaches %}
 <div style="margin-top:8px;">
-<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:4px;">{{ t('breaches_detected') }}</div>
+<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--fg-dim);margin-bottom:4px;">{{ t('breaches_detected') }}</div>
 <table class="dense">
 <thead><tr><th>{{ t('source') }}</th><th>{{ t('date') }}</th><th>Data</th></tr></thead>
 <tbody>
 {% for b in s.hibp.breaches %}
-<tr><td>{{ b.name }}</td><td>{{ b.date }}</td><td style="color:var(--text-dim);font-size:11px;">{{ b.data_classes|join(', ') }}</td></tr>
+<tr><td>{{ b.name }}</td><td>{{ b.date }}</td><td style="color:var(--fg-2);font-size:11px;">{{ b.data_classes|join(', ') }}</td></tr>
 {% endfor %}
 </tbody>
 </table>
@@ -341,7 +341,7 @@
 <tr><td style="font-weight:500;color:var(--amber);">{{ p.platform }}</td><td><a href="{{ p.url }}" target="_blank" style="color:var(--amber);">{{ p.url[:55] }}&#8230;</a></td><td><span class="badge amber">Unverified</span></td></tr>
 {% endfor %}
 {% for p in r.profiles if p.status in ('not_found','blocked','redirect_login','redirect_away','rate_limited','error','timeout') %}
-<tr><td style="color:var(--text-dim);font-size:11px;">{{ p.platform }}</td><td style="color:var(--text-dim);font-size:11px;">{{ p.url[:45] }}&#8230;</td><td><span class="badge" style="background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border);">{{ p.status }}</span></td></tr>
+<tr><td style="color:var(--fg-2);font-size:11px;">{{ p.platform }}</td><td style="color:var(--fg-2);font-size:11px;">{{ p.url[:45] }}&#8230;</td><td><span class="badge" style="background:var(--bg-primary);color:var(--fg-2);border:1px solid var(--border);">{{ p.status }}</span></td></tr>
 {% endfor %}
 </tbody>
 </table>
@@ -362,7 +362,7 @@
 <img src="{{ r.gravatar.avatar }}" style="width:48px;height:48px;flex-shrink:0;">
 <div>
 <div style="font-weight:600;font-size:14px;">{{ r.gravatar.display_name or 'N/A' }}</div>
-<div style="font-size:12px;color:var(--text-dim);">@{{ r.gravatar.preferred_username or 'N/A' }}</div>
+<div style="font-size:12px;color:var(--fg-2);">@{{ r.gravatar.preferred_username or 'N/A' }}</div>
 </div>
 </div>
 {% endif %}
@@ -376,7 +376,7 @@
 <thead><tr><th>{{ t('source') }}</th><th>{{ t('date') }}</th><th>Data</th></tr></thead>
 <tbody>
 {% for b in r.hibp.breaches %}
-<tr><td style="font-weight:500;">{{ b.name }}</td><td>{{ b.date }}</td><td style="color:var(--text-dim);font-size:11px;">{{ b.data_classes|join(', ') }}</td></tr>
+<tr><td style="font-weight:500;">{{ b.name }}</td><td>{{ b.date }}</td><td style="color:var(--fg-2);font-size:11px;">{{ b.data_classes|join(', ') }}</td></tr>
 {% endfor %}
 </tbody>
 </table>

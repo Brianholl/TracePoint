@@ -57,7 +57,7 @@ onkeydown="if(event.key==='Enter'){var v=this.value.trim();if(!v)return;if(v.inc
 <tbody>
 {% for s in recent %}
 <tr onclick="window.location='/results/{{ s.id }}'" style="cursor:pointer;">
-<td class="mono" style="color:var(--text-muted)">#{{ s.id }}</td>
+<td class="mono" style="color:var(--fg-dim)">#{{ s.id }}</td>
 <td><span class="badge">{{ s.query_type }}</span></td>
 <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ s.query_value[:50] }}</td>
 <td>
@@ -90,10 +90,10 @@ onkeydown="if(event.key==='Enter'){var v=this.value.trim();if(!v)return;if(v.inc
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
 {% for a in accounts %}
 <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--bg-primary);border:1px solid var(--border);">
-<span style="width:5px;height:5px;background:{{ 'var(--green)' if a.configured else 'var(--text-muted)' }};flex-shrink:0;"></span>
+<span style="width:5px;height:5px;background:{{ 'var(--green)' if a.configured else 'var(--fg-dim)' }};flex-shrink:0;"></span>
 <div>
-<div style="font-size:11px;font-weight:500;color:var(--text);">{{ a.platform|capitalize }}</div>
-<div style="font-size:9px;color:var(--text-muted);">{{ t('connected') if a.configured else t('not_configured') }}</div>
+<div style="font-size:11px;font-weight:500;color:var(--fg);">{{ a.platform|capitalize }}</div>
+<div style="font-size:9px;color:var(--fg-dim);">{{ t('connected') if a.configured else t('not_configured') }}</div>
 </div>
 </div>
 {% endfor %}

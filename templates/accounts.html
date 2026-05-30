@@ -19,7 +19,7 @@
 <div class="plat">{{ platform|capitalize }}</div>
 <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
 <input type="checkbox" name="enable_{{ platform }}" {% if accounts.get(platform,{}).get('enabled') %}checked{% endif %} style="accent-color:var(--accent);">
-<span style="font-size:10px;color:var(--text-dim);">{{ t('enabled') }}</span>
+<span style="font-size:10px;color:var(--fg-2);">{{ t('enabled') }}</span>
 </label>
 </div>
 <div class="desc">{{ schema.description }}</div>

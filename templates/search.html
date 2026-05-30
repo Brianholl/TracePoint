@@ -68,7 +68,7 @@
 <div class="upload-placeholder" id="uploadPlaceholderS">
 <div class="upload-icon" style="font-size:32px;line-height:1;">&#128247;</div>
 <div class="upload-text" style="font-size:13px;margin:6px 0 2px;">{{ t('photo_help') }}</div>
-<div class="upload-hint" style="font-size:11px;color:var(--text-dim);">{{ t('photo_search_hint') }}</div>
+<div class="upload-hint" style="font-size:11px;color:var(--fg-2);">{{ t('photo_search_hint') }}</div>
 </div>
 <div class="upload-preview" id="uploadPreviewS" style="display:none;">
 <img id="previewImgS" src="" alt="Preview" style="max-width:160px;max-height:160px;border-radius:6px;border:1px solid var(--border);">
@@ -86,8 +86,8 @@
 <div class="panel-body">
 <div style="display:flex;align-items:center;justify-content:space-between;">
 <div>
-<div style="font-size:13px;font-weight:500;color:var(--text-bright);">{{ t('need_more') }}</div>
-<div style="font-size:11px;color:var(--text-dim);">{{ t('need_more_desc') }}</div>
+<div style="font-size:13px;font-weight:500;color:var(--fg);">{{ t('need_more') }}</div>
+<div style="font-size:11px;color:var(--fg-2);">{{ t('need_more_desc') }}</div>
 </div>
 <a href="/deep-search" class="btn prime">{{ t('full_investigation') }} &rarr;</a>
 </div>
@@ -99,7 +99,7 @@
 border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center;
 cursor: pointer; transition: border-color .2s, background .2s; background: var(--bg-primary);
 }
-.upload-zone:hover, .upload-zone.dragover { border-color: var(--blue); background: var(--bg-hover); }
+.upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: var(--bg-hover); }
 </style>
 
 <script>

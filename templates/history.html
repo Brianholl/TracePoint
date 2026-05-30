@@ -23,7 +23,7 @@
 <tbody>
 {% for s in searches %}
 <tr>
-<td class="mono" style="color:var(--text-muted)">#{{ s.id }}</td>
+<td class="mono" style="color:var(--fg-dim)">#{{ s.id }}</td>
 <td><span class="badge">{{ s.query_type }}</span></td>
 <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ s.query_value[:70] }}</td>
 <td>
@@ -32,7 +32,7 @@
 {% elif s.status == 'error' %}<span class="badge red">&#9679; {{ t('error') }}</span>
 {% else %}<span class="badge">{{ s.status }}</span>{% endif %}
 </td>
-<td style="color:var(--text-dim);font-size:11px;">{{ s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else '-' }}</td>
+<td style="color:var(--fg-2);font-size:11px;">{{ s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else '-' }}</td>
 <td><div class="btn-group" style="gap:3px;">
 <a href="/results/{{ s.id }}" class="btn btn-sm">{{ t('view') }}</a>
 {% if s.report_path %}<a href="/view-report/{{ s.id }}" class="btn btn-sm" target="_blank">{{ t('report') }}</a>{% endif %}
