@@ -16,3 +16,10 @@ aiosqlite==0.22.1
 greenlet==3.5.1
 markdown==3.10.2
 Pillow==11.1.0
+# auth
+passlib[bcrypt]==1.7.4
+pyotp==2.9.0
+qrcode[svg]==8.0
+itsdangerous==2.2.0
+# social scrapers
+instaloader==4.13.1
