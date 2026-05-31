@@ -35,3 +35,8 @@ class Config:
     MODEL_EXTREME_LABEL: str = 'Claude Opus 4.7'
 
 config = Config()
+
+# Aseguramos los directorios de runtime (gitignoreados → no existen en un clone
+# fresco). Sin esto, el engine SQLite falla al abrir data/osint.db en el arranque.
+for _d in (BASE_DIR / 'data', config.REPORTS_DIR, config.UPLOADS_DIR):
+    _d.mkdir(parents=True, exist_ok=True)

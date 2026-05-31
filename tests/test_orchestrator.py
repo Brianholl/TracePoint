@@ -77,6 +77,42 @@ async def test_email_search_completes(captured, monkeypatch):
     assert rec["results"]["email"] == "a@b.com"
 
 
+async def test_emits_progress_events(captured, monkeypatch):
+    from modules.progress import broker
+    broker.clear(42)
+    monkeypatch.setattr(orch, "search_username", aret(
+        {"profiles": [], "total_found": 3, "total_unverified": 0}))
+    monkeypatch.setattr(orch, "analyze_social_profiles", aret({}))
+    monkeypatch.setattr(orch, "search_deepweb", aret({"tor_connected": False}))
+
+    await orch.execute_search(42, "username", "jdoe", None)
+
+    hist = broker.history(42)
+    nodes = [e["node"] for e in hist]
+    assert "username" in nodes and "ai" in nodes
+    assert hist[0] == {**hist[0], "node": "_pipeline", "status": "running"}
+    assert broker.is_terminal(hist[-1]) and hist[-1]["status"] == "completed"
+    # el evento 'done' de username arrastra el conteo
+    uname_done = next(e for e in hist if e["node"] == "username" and e["status"] == "done")
+    assert uname_done["found"] == 3
+    broker.clear(42)
+
+
+async def test_emits_error_event_on_failure(captured, monkeypatch):
+    from modules.progress import broker
+    broker.clear(43)
+
+    async def boom(*a, **k):
+        raise RuntimeError("falló")
+    monkeypatch.setattr(orch, "search_username", boom)
+
+    await orch.execute_search(43, "username", "jdoe", None)
+
+    hist = broker.history(43)
+    assert broker.is_terminal(hist[-1]) and hist[-1]["status"] == "error"
+    broker.clear(43)
+
+
 async def test_deep_search_completes(captured, monkeypatch):
     monkeypatch.setattr(orch, "search_username", aret(
         {"profiles": [], "total_found": 0, "total_unverified": 0}))

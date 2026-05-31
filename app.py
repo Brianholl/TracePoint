@@ -1,12 +1,13 @@
 import asyncio
 import datetime
+import json
 import time
 import uuid
 from collections import defaultdict
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, UploadFile, File, Depends, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,6 +31,7 @@ from modules.accounts_config import (
     get_all_configured, ACCOUNT_SCHEMAS
 )
 from modules.orchestrator import execute_search, execute_deep_search
+from modules.progress import broker
 
 
 class _RateLimiter:
@@ -386,6 +388,20 @@ async def results(
     search.created_at = created_at
 
     return templates.TemplateResponse('results.html', ctx(request, search=search, user=user))
+
+@app.get('/events/search/{search_id}')
+async def search_events(search_id: int):
+    """Stream SSE del progreso del pipeline (Capa A, feedback live)."""
+    async def event_stream():
+        async for ev in broker.subscribe(search_id):
+            yield f'data: {json.dumps(ev)}\n\n'
+            if broker.is_terminal(ev):
+                break
+    return StreamingResponse(
+        event_stream(),
+        media_type='text/event-stream',
+        headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'},
+    )
 
 @app.get('/accounts', response_class=HTMLResponse)
 async def accounts_page(

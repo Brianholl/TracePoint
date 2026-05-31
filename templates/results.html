@@ -17,12 +17,23 @@
 </div>
 
 {% if search.status == 'running' %}
+<style>
+.sse-log{list-style:none;margin:12px 0 0;padding:0;text-align:left;max-width:420px;margin-inline:auto;font-family:var(--font-mono,monospace);font-size:12px;}
+.sse-item{padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:4px;display:flex;align-items:center;gap:6px;transition:background .2s;}
+.sse-running{color:var(--amber);border-color:var(--amber);}
+.sse-running .sse-ico{animation:sse-spin 1s linear infinite;display:inline-block;}
+.sse-done{color:var(--green);}
+.sse-error{color:var(--red);border-color:var(--red);}
+@keyframes sse-spin{to{transform:rotate(360deg);}}
+</style>
 <div class="panel">
-<div class="panel-body" style="text-align:center;padding:32px;">
-<div style="font-size:18px;margin-bottom:8px;">&#8635;</div>
+<div class="panel-body" style="text-align:center;padding:28px;">
 <div style="font-size:12px;font-weight:500;color:var(--fg);margin-bottom:6px;">{{ t('in_progress') }}</div>
-<div class="pbar" style="max-width:320px;margin:0 auto 8px;"><div class="fill"></div></div>
+<div class="pbar" style="max-width:320px;margin:0 auto 4px;"><div class="fill"></div></div>
 <div style="font-size:10px;color:var(--fg-2);">{{ t('collecting_intel') }}</div>
+<div id="sse-progress" data-search-id="{{ search.id }}">
+<ul id="sse-log" class="sse-log"></ul>
+</div>
 </div>
 </div>
 {% endif %}

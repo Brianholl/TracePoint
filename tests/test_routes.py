@@ -81,3 +81,24 @@ async def test_search_is_rate_limited(client):
 async def test_missing_result_is_404(client):
     resp = await client.get("/results/999999")
     assert resp.status_code == 404
+
+
+async def test_sse_replays_history_and_closes_on_terminal(client):
+    # El endpoint SSE es un GET streaming → testeable con el mismo ASGITransport.
+    from modules.progress import broker
+    sid = 313131
+    broker.clear(sid)
+    broker.publish(sid, {"node": "username", "status": "done", "found": 3})
+    broker.publish(sid, {"node": "_pipeline", "status": "completed"})
+
+    body = ""
+    async with client.stream("GET", f"/events/search/{sid}") as resp:
+        assert resp.status_code == 200
+        assert resp.headers["content-type"].startswith("text/event-stream")
+        async for chunk in resp.aiter_text():
+            body += chunk
+
+    assert "username" in body
+    assert "completed" in body
+    assert body.count("data:") == 2     # replay completo y cierre limpio
+    broker.clear(sid)
