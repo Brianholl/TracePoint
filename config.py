@@ -22,6 +22,8 @@ class Config:
     TOR_CONTROL_PORT: int = int(os.getenv('TOR_CONTROL_PORT', '9051'))
     TOR_PASSWORD: str = os.getenv('TOR_PASSWORD', '')
 
+    HIBP_API_KEY: str = os.getenv('HIBP_API_KEY', '')
+
     SECRET_KEY: str = os.getenv('SECRET_KEY', 'change-this-secret-key')
     DEBUG: bool = os.getenv('DEBUG', 'false').lower() == 'true'
 

@@ -3,8 +3,6 @@ import asyncio
 import re
 from bs4 import BeautifulSoup
 from urllib.parse import quote_plus, urlparse
-from pathlib import Path
-import base64
 
 SOCIAL_PLATFORM_PATTERNS = [
     (r'(?:https?://)?(?:www\.)?instagram\.com/([a-zA-Z0-9_.]+)', 'Instagram'),
@@ -65,19 +63,16 @@ async def search_social_by_image(image_path: str = None, image_url: str = None) 
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     }
 
-    if image_path and not image_url:
-        p = Path(image_path)
-        if p.exists():
-            with open(p, 'rb') as f:
-                b64 = base64.b64encode(f.read()).decode()
-                ext = p.suffix.lstrip('.') or 'jpg'
-                image_url = f'data:image/{ext};base64,{b64[:100]}...'
-
     async with httpx.AsyncClient(headers=headers, follow_redirects=True, timeout=25) as client:
         tasks = []
         engine_configs = []
 
-        if image_url and not image_url.startswith('data:'):
+        # Local URLs (e.g. /uploads/...) are not reachable by external search engines
+        if image_url and image_url.startswith('/'):
+            result['error'] = 'reverse_image_unavailable_local'
+            return result
+
+        if image_url:
             for engine_name, url_tpl in SEARCH_ENGINES.items():
                 search_url = url_tpl.format(image_url=quote_plus(image_url))
                 tasks.append(_scrape_engine(client, engine_name, search_url))

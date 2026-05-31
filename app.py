@@ -337,7 +337,7 @@ async def run_deep_search(
         content = await photo.read()
         image_path.write_bytes(content)
 
-    query_value = ' | '.join([f'{t}:{v}' for t, v in inputs])
+    query_value = ' | '.join([f'{itype}:{v}' for itype, v in inputs])
     if image_path:
         query_value += f' | photo:{fname}'
     search = await save_search(

@@ -1,6 +1,7 @@
 import httpx
 import hashlib
 from bs4 import BeautifulSoup
+from config import config
 
 HIBP_URL = 'https://haveibeenpwned.com/account/{}'
 GOOGLE_DORK = 'https://www.google.com/search?q={}'
@@ -38,11 +39,14 @@ async def check_gravatar(email: str) -> dict | None:
 
 async def check_hibp(email: str) -> dict:
     result = {'breaches': [], 'pastes': [], 'total_breaches': 0}
+    if not config.HIBP_API_KEY:
+        result['status'] = 'no_api_key'
+        return result
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.get(
                 f'https://haveibeenpwned.com/api/v3/breachedaccount/{email}',
-                headers={'hibp-api-key': '', 'user-agent': 'TracePoint'}
+                headers={'hibp-api-key': config.HIBP_API_KEY, 'user-agent': 'TracePoint'}
             )
             if resp.status_code == 200:
                 result['breaches'] = [
@@ -53,6 +57,8 @@ async def check_hibp(email: str) -> dict:
                 result['total_breaches'] = len(result['breaches'])
             elif resp.status_code == 404:
                 pass
+            elif resp.status_code == 401:
+                result['status'] = 'invalid_api_key'
     except Exception as e:
         result['error'] = str(e)[:200]
     return result
