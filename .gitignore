@@ -12,3 +12,4 @@ social_accounts.json
 .coverage
 .pytest_cache/
 htmlcov/
+scripts/kpi_history.jsonl

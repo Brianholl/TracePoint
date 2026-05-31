@@ -1,0 +1,36 @@
+# ─────────────────────────────────────────────────────────────────────────
+# GROUND TRUTH — set 'dev'  (iterás libre acá mientras desarrollás)
+# ─────────────────────────────────────────────────────────────────────────
+#
+# PROTOCOLO DE ETIQUETADO (humano en el loop — anti-surrogación):
+#   - Etiquetá SOLO plataformas que verificaste a mano. Una etiqueta dudosa
+#     envenena el KPI (mide mal el "ruido proxy−goal" = Goodhart regresional).
+#   - 'present': la cuenta EXISTE para ese username en esa plataforma.
+#   - 'absent' : NO existe (incluí siempre un username sintético inexistente:
+#     da señal limpia de falsa atribución sin tocar la privacidad de nadie).
+#   - Usá cuentas OFICIALES/públicas o de prueba propias. NUNCA personas privadas.
+#   - Si crece este set hasta "memorizarlo", ya no mide generalización: refrescalo
+#     y dejá el set 'lockbox' intacto para el juicio pre-release.
+#
+# Ampliá este set: cuanto más etiquetas verificadas, más confiable el baseline.
+# ─────────────────────────────────────────────────────────────────────────
+
+- username: torvalds          # Linus Torvalds (figura pública)
+  owner: public-figure
+  present: [GitHub]
+  absent: []
+
+- username: nasa              # cuenta oficial NASA
+  owner: official-org
+  present: [GitHub, YouTube]
+  absent: []
+
+- username: github           # cuenta oficial de GitHub
+  owner: official-org
+  present: [GitHub]
+  absent: []
+
+- username: qzx7v9k2mwptrace0  # sintético: no existe en ningún lado
+  owner: synthetic-absent
+  present: []
+  absent: [GitHub, Keybase, Flickr, GitLab, SoundCloud]

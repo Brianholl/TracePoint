@@ -1,0 +1,21 @@
+# ─────────────────────────────────────────────────────────────────────────
+# GROUND TRUTH — set 'lockbox'  (CONGELADO: solo se corre antes de un release)
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Este set NO se mira mientras se itera. Es el juicio honesto de generalización.
+# Si tuneás la lógica hasta clavar el set 'dev' y luego mirás acá, este set te
+# dice cuánto de esa mejora era real vs. overfitting al test (Rip van Winkle's
+# Razor). Rotá su contenido cada N releases para que no se contamine.
+#
+# Reglas idénticas al dev set. Usernames DISTINTOS del dev set a propósito.
+# ─────────────────────────────────────────────────────────────────────────
+
+- username: octocat          # mascota oficial de GitHub
+  owner: official-org
+  present: [GitHub]
+  absent: []
+
+- username: zzq8w3n5k1trcpt    # sintético: no existe
+  owner: synthetic-absent
+  present: []
+  absent: [GitHub, Keybase]
