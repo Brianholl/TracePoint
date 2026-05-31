@@ -9,3 +9,6 @@ reports/*
 social_accounts.json
 *.log
 .DS_Store
+.coverage
+.pytest_cache/
+htmlcov/
