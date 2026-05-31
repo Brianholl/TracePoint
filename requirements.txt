@@ -23,3 +23,4 @@ qrcode[svg]==8.0
 itsdangerous==2.2.0
 # social scrapers
 instaloader==4.13.1
+telethon==1.43.2

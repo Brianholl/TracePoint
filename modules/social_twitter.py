@@ -1,13 +1,73 @@
 import httpx
-import asyncio
+import re
+from bs4 import BeautifulSoup
 from modules.accounts_config import get_platform_accounts
 
-TWITTER_AVAILABLE = False
-try:
-    import snscrape.modules.twitter as sntwitter
-    TWITTER_AVAILABLE = True
-except Exception:
-    pass
+NITTER_INSTANCES = [
+    'https://nitter.net',
+    'https://nitter.privacydev.net',
+    'https://nitter.unixfox.eu',
+]
+
+
+async def _scrape_nitter_tweets(client: httpx.AsyncClient, username: str) -> list:
+    for instance in NITTER_INSTANCES:
+        try:
+            resp = await client.get(f'{instance}/{username}', timeout=10)
+            if resp.status_code != 200:
+                continue
+
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            tweets = []
+
+            for item in soup.select('div.timeline-item')[:20]:
+                content_el = item.select_one('.tweet-content')
+                content = content_el.get_text(strip=True)[:300] if content_el else ''
+
+                link_el = item.select_one('a.tweet-link')
+                href = link_el['href'] if link_el else ''
+                tweet_id = href.split('/status/')[1].split('#')[0] if '/status/' in href else ''
+                tweet_url = f'https://twitter.com{href.split("#")[0]}' if href else ''
+
+                date_el = item.select_one('.tweet-date a')
+                date = date_el.get('title', '') if date_el else ''
+
+                replies = retweets = likes = 0
+                for stat in item.select('.tweet-stat'):
+                    icon = stat.select_one('[class]')
+                    if not icon:
+                        continue
+                    icon_classes = ' '.join(icon.get('class', []))
+                    count_el = stat.select_one('span:last-child')
+                    raw = count_el.get_text(strip=True).replace(',', '') if count_el else ''
+                    count = int(raw) if raw.isdigit() else 0
+                    if 'comment' in icon_classes:
+                        replies = count
+                    elif 'retweet' in icon_classes:
+                        retweets = count
+                    elif 'heart' in icon_classes:
+                        likes = count
+
+                tweets.append({
+                    'id': tweet_id,
+                    'url': tweet_url,
+                    'content': content,
+                    'date': date,
+                    'likes': likes,
+                    'retweets': retweets,
+                    'replies': replies,
+                    'media': [],
+                    'mentioned_users': re.findall(r'@(\w+)', content),
+                    'hashtags': re.findall(r'#(\w+)', content),
+                })
+
+            if tweets:
+                return tweets
+        except Exception:
+            continue
+
+    return []
+
 
 async def scrape_twitter(target_username: str) -> dict:
     result = {
@@ -33,9 +93,12 @@ async def scrape_twitter(target_username: str) -> dict:
 
     async with httpx.AsyncClient(headers=headers, timeout=15) as client:
         try:
-            api_url = f'https://api.twitter.com/2/users/by/username/{target_username}'
             if token:
-                api_url += '?user.fields=created_at,description,public_metrics,location,profile_image_url,verified,protected,url,name,entities'
+                api_url = (
+                    f'https://api.twitter.com/2/users/by/username/{target_username}'
+                    '?user.fields=created_at,description,public_metrics,location,'
+                    'profile_image_url,verified,protected,url,name,entities'
+                )
                 resp = await client.get(api_url)
                 if resp.status_code == 200:
                     data = resp.json().get('data', {})
@@ -59,43 +122,26 @@ async def scrape_twitter(target_username: str) -> dict:
                     result['followers_count'] = metrics.get('followers_count', 0)
                     result['following_count'] = metrics.get('following_count', 0)
             else:
-                resp = await client.get(f'https://nitter.net/{target_username}')
-                if resp.status_code == 200:
-                    from bs4 import BeautifulSoup
-                    soup = BeautifulSoup(resp.text, 'html.parser')
-                    name_el = soup.select_one('.profile-card-fullname')
-                    bio_el = soup.select_one('.profile-bio')
-                    result['profile'] = {
-                        'username': target_username,
-                        'name': name_el.get_text(strip=True) if name_el else '',
-                        'description': bio_el.get_text(strip=True) if bio_el else '',
-                    }
+                # Fallback: Nitter for profile card + tweets
+                for instance in NITTER_INSTANCES:
+                    try:
+                        resp = await client.get(f'{instance}/{target_username}', timeout=10)
+                        if resp.status_code == 200:
+                            soup = BeautifulSoup(resp.text, 'html.parser')
+                            name_el = soup.select_one('.profile-card-fullname')
+                            bio_el = soup.select_one('.profile-bio')
+                            result['profile'] = {
+                                'username': target_username,
+                                'name': name_el.get_text(strip=True) if name_el else '',
+                                'description': bio_el.get_text(strip=True) if bio_el else '',
+                            }
+                            break
+                    except Exception:
+                        continue
+
+                result['tweets'] = await _scrape_nitter_tweets(client, target_username)
+
         except Exception as e:
             result['error'] = str(e)[:200]
-
-    if TWITTER_AVAILABLE:
-        try:
-            loop = asyncio.get_event_loop()
-            tweets = []
-            scraper = sntwitter.TwitterSearchScraper(f'from:{target_username}')
-            for i, tweet in enumerate(scraper.get_items()):
-                if i >= 20:
-                    break
-                tweets.append({
-                    'id': tweet.id,
-                    'url': tweet.url,
-                    'content': tweet.rawContent[:300] if tweet.rawContent else '',
-                    'date': str(tweet.date),
-                    'likes': tweet.likeCount,
-                    'retweets': tweet.retweetCount,
-                    'replies': tweet.replyCount,
-                    'media': [m.fullUrl for m in (tweet.media or []) if hasattr(m, 'fullUrl')],
-                    'mentioned_users': list(tweet.mentionedUsers or []),
-                    'hashtags': tweet.hashtags if tweet.hashtags else [],
-                })
-            result['tweets'] = tweets
-        except Exception as e:
-            if not result['error']:
-                result['error'] = str(e)[:200]
 
     return result
