@@ -44,10 +44,32 @@ Esa es la defensa directa contra el Goodhart adversarial.
 | **Recall estricto** (hallar lo que existe; abstenerse = fallo) | **Falsa atribución (FAR)** | inflar recall marcando todo `found` |
 | **Cobertura** (veredictos decidibles) | **Calibración** (de lo decidido, % correcto) | convertir `unverified`→confianza falsa |
 | **Fiabilidad / latencia** | **Fuentes consultadas** | bajar latencia tirando plataformas |
-| (futuro) Utilidad del brief IA | Tasa de afirmaciones no respaldadas | IA que suena bien pero inventa |
+| **Utilidad del brief IA** | **Afirmaciones no respaldadas + densidad de relleno** | IA que suena bien pero inventa o infla (*tokenmaxxing*) |
 
 **TQS (salud, 0–100)** = `0.50·F1 + 0.25·Cobertura + 0.25·Fiabilidad`.
 Se reporta **siempre descompuesto**, nunca como número suelto.
+
+### 2.1 Anti-tokenmaxxing del brief IA
+
+La única superficie generativa es el brief que escribe la IA (`modules/ai_analyzer.py`).
+*Tokenmaxxing* = inflar la salida (longitud, relleno, falsa exhaustividad) como
+proxy de calidad. Lo atacamos en **dos frentes**, no con un límite de longitud
+(eso sería Goodhart: un informe corto y denso es bueno, uno largo y vacío es malo):
+
+- **Frente 1 — matar el driver en la fuente (prompt).** `_build_prompt` ya no fuerza
+  N secciones fijas: las secciones son **condicionales** ("incluí una sección solo si
+  hay evidencia"), exige concisión y densidad, ancla toda afirmación a un hallazgo
+  concreto y **prohíbe introducir específicos** (nombres, correos, @usuarios, URLs,
+  fechas, ubicaciones) ausentes en los datos recolectados.
+- **Frente 2 — medirlo sin volver la longitud el objetivo** ([`modules/brief_quality.py`](modules/brief_quality.py),
+  scorer puro). Dos señales que un modelo **no puede satisfacer inflando**:
+  - **`unsupported_specifics`** — específicos nombrados en el brief que **no** aparecen
+    en los datos = fabricación. Es el **análogo generativo de la falsa atribución** y
+    queda atado al guardrail **CARDINAL** (§3). Inflar el texto solo empeora esta señal.
+  - **`filler_density`** — muletillas de relleno por **cada 1000 palabras** (densidad,
+    no conteo absoluto: un brief largo legítimo no se penaliza si el relleno está diluido).
+
+  Testeado en [`tests/test_brief_quality.py`](tests/test_brief_quality.py) (puro, sin red).
 
 ## 3. Guardrails (pisos duros — si se rompen, no hay release)
 

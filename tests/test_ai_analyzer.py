@@ -69,7 +69,9 @@ def test_build_prompt_username_section():
     assert "Username Search Results" in prompt
     assert "Profiles found: 1" in prompt          # solo el 'found' cuenta
     assert "GitHub: https://github.com/jdoe" in prompt
-    assert "Executive Summary" in prompt           # instrucciones siempre presentes
+    assert "Resumen ejecutivo" in prompt           # bloque de instrucciones presente
+    # anti-tokenmaxxing: la regla de no inflar viaja en el prompt
+    assert "Nunca infles para completar" in prompt
 
 
 def test_build_prompt_email_section_with_breaches():
